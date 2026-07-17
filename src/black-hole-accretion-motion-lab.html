@@ -1,0 +1,845 @@
+<div id="black-hole-accretion-motion-lab">
+  <style>
+    #black-hole-accretion-motion-lab {
+      display: grid;
+      width: 100%;
+      min-width: 0;
+      gap: 12px;
+      color: var(--foreground);
+    }
+
+    #black-hole-accretion-motion-lab .bh-stage {
+      position: relative;
+      min-width: 0;
+    }
+
+    #black-hole-accretion-motion-lab .bh-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      touch-action: pan-y;
+      background: var(--background);
+    }
+
+    #black-hole-accretion-motion-lab .bh-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      pointer-events: none;
+    }
+
+    #black-hole-accretion-motion-lab .bh-readout {
+      min-height: 1.5em;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      #black-hole-accretion-motion-lab .bh-canvas {
+        aspect-ratio: 4 / 3;
+      }
+    }
+  </style>
+
+  <section aria-labelledby="bh-motion-heading">
+    <h2 id="bh-motion-heading" class="sr-only">相对论黑洞实时模型</h2>
+
+    <div class="bh-stage">
+      <canvas
+        id="bh-motion-canvas"
+        class="bh-canvas"
+        role="img"
+        aria-label="相对论近似的旋转黑洞实时模拟，包含光线弯曲、光子环、引力红移和多普勒增亮"
+        aria-describedby="bh-motion-description"
+      >浏览器需要支持 WebGL 才能显示实时黑洞模型。</canvas>
+      <span id="bh-motion-status" class="viz-badge bh-status" aria-live="off">实时 · 初始化</span>
+    </div>
+
+    <div id="bh-motion-readout" class="bh-readout text-small text-muted"></div>
+
+    <div class="viz-controls" aria-label="黑洞模型参数">
+      <label class="form-label" for="bh-motion-mass">
+        质量 <output id="bh-motion-mass-output" for="bh-motion-mass">8.0 M☉</output>
+        <input id="bh-motion-mass" class="form-range" type="range" min="2" max="20" value="8" step="0.1">
+      </label>
+
+      <label class="form-label" for="bh-motion-spin">
+        自旋 <output id="bh-motion-spin-output" for="bh-motion-spin">0.72 a*</output>
+        <input id="bh-motion-spin" class="form-range" type="range" min="0" max="0.98" value="0.72" step="0.01">
+      </label>
+
+      <label class="form-label" for="bh-motion-accretion">
+        吸积率 <output id="bh-motion-accretion-output" for="bh-motion-accretion">65%</output>
+        <input id="bh-motion-accretion" class="form-range" type="range" min="0" max="1" value="0.65" step="0.01">
+      </label>
+
+      <label class="form-label" for="bh-motion-inclination">
+        观测倾角 <output id="bh-motion-inclination-output" for="bh-motion-inclination">64°</output>
+        <input id="bh-motion-inclination" class="form-range" type="range" min="5" max="85" value="64" step="1">
+      </label>
+
+      <button id="bh-motion-motion" class="btn" type="button" aria-pressed="false">暂停运动</button>
+    </div>
+
+    <p id="bh-motion-description" class="sr-only">
+      可使用质量、自旋、吸积率和观测倾角滑块更新模型。画面支持指针拖动观察方向与滚轮缩放。
+    </p>
+  </section>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var root = document.getElementById('black-hole-accretion-motion-lab');
+      if (!root || root.dataset.initialized === 'true') return;
+      root.dataset.initialized = 'true';
+
+      var canvas = document.getElementById('bh-motion-canvas');
+      var statusEl = document.getElementById('bh-motion-status');
+      var readoutEl = document.getElementById('bh-motion-readout');
+      var toggleButton = document.getElementById('bh-motion-motion');
+
+      var controls = {
+        mass: document.getElementById('bh-motion-mass'),
+        spin: document.getElementById('bh-motion-spin'),
+        accretion: document.getElementById('bh-motion-accretion'),
+        inclination: document.getElementById('bh-motion-inclination')
+      };
+
+      var outputs = {
+        mass: document.getElementById('bh-motion-mass-output'),
+        spin: document.getElementById('bh-motion-spin-output'),
+        accretion: document.getElementById('bh-motion-accretion-output'),
+        inclination: document.getElementById('bh-motion-inclination-output')
+      };
+
+      var reduceMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var motionHasStarted = !reduceMotion;
+
+      var state = {
+        mass: Number(controls.mass.value),
+        spin: Number(controls.spin.value),
+        accretion: Number(controls.accretion.value),
+        inclination: Number(controls.inclination.value),
+        yaw: -0.45,
+        zoom: 1,
+        time: 0,
+        paused: Boolean(reduceMotion),
+        hiddenPause: false,
+        offscreenPause: false,
+        contextLost: false
+      };
+
+      var gl = canvas.getContext('webgl', {
+        antialias: false,
+        alpha: false,
+        depth: false,
+        stencil: false,
+        preserveDrawingBuffer: false,
+        powerPreference: 'high-performance'
+      });
+
+      if (!gl) {
+        statusEl.textContent = 'WebGL 不可用';
+        readoutEl.textContent = '当前浏览器无法启动实时渲染。';
+        toggleButton.disabled = true;
+        Object.keys(controls).forEach(function (key) {
+          controls[key].disabled = true;
+        });
+        return;
+      }
+
+      var vertexSource = [
+        'attribute vec2 aPosition;',
+        'void main() {',
+        '  gl_Position = vec4(aPosition, 0.0, 1.0);',
+        '}'
+      ].join(String.fromCharCode(10));
+
+      var fragmentPrecision = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision > 0
+        ? 'precision highp float;'
+        : 'precision mediump float;';
+
+      var fragmentSourceTemplate = [
+        fragmentPrecision,
+        'uniform vec2 uResolution;',
+        'uniform float uTime;',
+        'uniform float uMass;',
+        'uniform float uSpin;',
+        'uniform float uAccretion;',
+        'uniform float uInclination;',
+        'uniform float uYaw;',
+        'uniform float uZoom;',
+        'uniform float uIscoRg;',
+        'uniform vec3 uBackground;',
+        'uniform vec3 uForeground;',
+        'uniform vec3 uMuted;',
+        'uniform vec3 uSeries1;',
+        'uniform vec3 uSeries2;',
+        'uniform vec3 uVoid;',
+        'const float PI = 3.141592653589793;',
+        '',
+        'float hash21(vec2 p) {',
+        '  p = fract(p * vec2(0.1031, 0.1030));',
+        '  p += dot(p, p.yx + 33.33);',
+        '  return fract((p.x + p.y) * p.x);',
+        '}',
+        '',
+        'float valueNoise(vec2 p) {',
+        '  vec2 i = floor(p);',
+        '  vec2 f = fract(p);',
+        '  f = f * f * (3.0 - 2.0 * f);',
+        '  return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x),',
+        '             mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), f.x), f.y);',
+        '}',
+        '',
+        'vec3 starField(vec3 direction) {',
+        '  vec3 d = normalize(direction);',
+        '  vec2 sphere = vec2(atan(d.z, d.x) / (2.0 * PI) + 0.5,',
+        '                     asin(clamp(d.y, -1.0, 1.0)) / PI + 0.5);',
+        '  float cloud = valueNoise(sphere * vec2(7.0, 4.0));',
+        '  vec3 color = mix(uBackground, uMuted, 0.035 + 0.075 * cloud);',
+        '',
+        '  vec2 gridA = sphere * vec2(760.0, 380.0);',
+        '  vec2 cellA = floor(gridA);',
+        '  float seedA = hash21(cellA);',
+        '  float pointA = 1.0 - smoothstep(0.0, 0.075, length(fract(gridA) - 0.5));',
+        '  pointA *= smoothstep(0.991, 1.0, seedA);',
+        '',
+        '  vec2 gridB = sphere * vec2(310.0, 155.0) + 17.0;',
+        '  vec2 cellB = floor(gridB);',
+        '  float seedB = hash21(cellB);',
+        '  float pointB = 1.0 - smoothstep(0.0, 0.055, length(fract(gridB) - 0.5));',
+        '  pointB *= smoothstep(0.997, 1.0, seedB);',
+        '',
+        '  float stars = clamp(pointA * (0.45 + 0.8 * seedA) + pointB, 0.0, 1.0);',
+        '  return mix(color, uForeground, stars);',
+        '}',
+        '',
+        'vec3 opticalCurvature(vec3 position, vec3 direction, float rg, float spin) {',
+        '  float radius = max(length(position), 0.51 * rg);',
+        '  float isotropicHorizon = 0.5 * rg;',
+        '  float x = min(isotropicHorizon / radius, 0.985);',
+        '  float dLogNdr = -(x / radius) *',
+        '    (3.0 / max(1.0 + x, 0.02) + 1.0 / max(1.0 - x, 0.02));',
+        '  vec3 gradient = dLogNdr * position / radius;',
+        '  vec3 turn = gradient - direction * dot(direction, gradient);',
+        '',
+        '  vec3 drag = cross(vec3(0.0, 1.0, 0.0), position);',
+        '  drag *= spin * 0.055 * rg * rg / max(radius * radius * radius, 0.001);',
+        '  drag -= direction * dot(direction, drag);',
+        '  return turn + drag;',
+        '}',
+        '',
+        'void main() {',
+        '  vec2 pixel = gl_FragCoord.xy;',
+        '  vec2 p = (2.0 * pixel - uResolution) / min(uResolution.x, uResolution.y);',
+        '  float massT = clamp((uMass - 2.0) / 18.0, 0.0, 1.0);',
+        '  float rg = mix(0.48, 0.78, massT);',
+        '  float spin = clamp(uSpin, 0.0, 0.98);',
+        '  float isotropicHorizon = 0.5 * rg;',
+        '  float captureRadius = isotropicHorizon * 1.025;',
+        '  float photonRadius = 1.8660254 * rg;',
+        '  float innerDisk = max(0.72 * uIscoRg * rg, captureRadius * 1.35);',
+        '  float outerDisk = 8.0 * rg;',
+        '  float lensRadius = outerDisk * 1.08;',
+        '',
+        '  float inclination = radians(uInclination);',
+        '  vec3 camera = vec3(sin(inclination) * cos(uYaw),',
+        '                     cos(inclination),',
+        '                     sin(inclination) * sin(uYaw)) * 8.6;',
+        '  vec3 forward = normalize(-camera);',
+        '  vec3 right = normalize(cross(forward, vec3(0.0, 1.0, 0.0)));',
+        '  vec3 up = normalize(cross(right, forward));',
+        '  float focalScale = 0.92 / uZoom;',
+        '  vec3 ray = normalize(forward + p.x * right * focalScale + p.y * up * focalScale);',
+        '',
+        '  float projected = dot(camera, ray);',
+        '  float discriminant = projected * projected -',
+        '    (dot(camera, camera) - lensRadius * lensRadius);',
+        '  bool entersLens = discriminant > 0.0 && projected < 0.0;',
+        '  float entryDistance = entersLens ? -projected - sqrt(max(discriminant, 0.0)) : 0.0;',
+        '  vec3 position = camera + ray * max(entryDistance, 0.0);',
+        '  float previousPlane = position.y;',
+        '',
+        '  float minimumRadius = 100.0;',
+        '  float photonResidence = 0.0;',
+        '  bool captured = false;',
+        '  bool diskHit = false;',
+        '  bool escaped = !entersLens;',
+        '  vec3 diskPoint = vec3(0.0);',
+        '  vec3 diskRay = ray;',
+        '',
+        '  for (int i = 0; i < __MAX_STEPS__; i++) {',
+        '    if (!entersLens || captured || diskHit || escaped) break;',
+        '    float radius = length(position);',
+        '    minimumRadius = min(minimumRadius, radius);',
+        '    if (radius < captureRadius) {',
+        '      captured = true;',
+        '      break;',
+        '    }',
+        '',
+        '    float photonDistance = (radius - photonRadius) / max(0.16 * rg, 0.001);',
+        '    float stepSize = clamp(0.055 * radius, 0.012, 0.22 * rg);',
+        '    photonResidence += exp(-photonDistance * photonDistance) * stepSize / rg;',
+        '',
+        '    vec3 firstTurn = opticalCurvature(position, ray, rg, spin);',
+        '    vec3 midRay = normalize(ray + firstTurn * (0.5 * stepSize));',
+        '    vec3 midPosition = position + ray * (0.5 * stepSize);',
+        '    vec3 secondTurn = opticalCurvature(midPosition, midRay, rg, spin);',
+        '    vec3 nextRay = normalize(ray + secondTurn * stepSize);',
+        '    vec3 nextPosition = position + midRay * stepSize;',
+        '',
+        '    float nextPlane = nextPosition.y;',
+        '    if (uAccretion > 0.002 && i > 0 && previousPlane * nextPlane <= 0.0) {',
+        '      float planeDelta = previousPlane - nextPlane;',
+        '      float crossing = abs(planeDelta) > 0.00001 ? previousPlane / planeDelta : 0.5;',
+        '      vec3 candidate = mix(position, nextPosition, clamp(crossing, 0.0, 1.0));',
+        '      float diskRadius = length(candidate.xz);',
+        '      if (diskRadius > innerDisk && diskRadius < outerDisk) {',
+        '        diskHit = true;',
+        '        diskPoint = candidate;',
+        '        diskRay = normalize(mix(ray, nextRay, clamp(crossing, 0.0, 1.0)));',
+        '        break;',
+        '      }',
+        '    }',
+        '',
+        '    position = nextPosition;',
+        '    ray = nextRay;',
+        '    previousPlane = nextPlane;',
+        '    if (length(position) > lensRadius && dot(position, ray) > 0.0 && i > 3) {',
+        '      escaped = true;',
+        '      break;',
+        '    }',
+        '  }',
+        '',
+        '  bool critical = entersLens && !captured && !diskHit && !escaped;',
+        '  vec3 color;',
+        '  if (captured) {',
+        '    color = uVoid;',
+        '  } else if (diskHit) {',
+        '    float radius = length(diskPoint.xz);',
+        '    float normalizedRadius = clamp((radius - innerDisk) /',
+        '      max(outerDisk - innerDisk, 0.001), 0.0, 1.0);',
+        '    float arealRadius = radius * pow(1.0 + isotropicHorizon / max(radius, 0.001), 2.0);',
+        '    float arealRg = arealRadius / rg;',
+        '',
+        '    float accretionLevel = clamp(uAccretion, 0.0, 1.0);',
+        '    float temperature = pow(innerDisk / max(radius, innerDisk), 0.75) *',
+        '      pow(max(1.0 - sqrt(innerDisk / max(radius, innerDisk)), 0.0), 0.25);',
+        '    float azimuth = atan(diskPoint.z, diskPoint.x);',
+        '    float orbitalRate = 2.4 * (8.0 / uMass) /',
+        '      max(pow(arealRg, 1.5) + spin, 0.45);',
+        '    float orbitalPhase = azimuth - uTime * orbitalRate * 2.6;',
+        '    float turbulence = valueNoise(vec2(orbitalPhase * 3.0,',
+        '      normalizedRadius * 18.0 + uTime * 0.10));',
+        '    float spiralPhase = orbitalPhase * 7.0 + normalizedRadius * 82.0 +',
+        '      (turbulence - 0.5) * 4.2;',
+        '    float filaments = 0.70 + 0.24 * sin(spiralPhase);',
+        '    float clumps = valueNoise(vec2(orbitalPhase * 10.0 + 6.0,',
+        '      normalizedRadius * 31.0));',
+        '    filaments *= 0.76 + 0.34 * turbulence + 0.18 * clumps;',
+        '',
+        '    vec3 tangent = normalize(vec3(diskPoint.z, 0.0, -diskPoint.x));',
+        '    float beta = sqrt(1.0 / max(arealRg - 2.0, 0.35));',
+        '    beta = clamp(beta * (0.90 + 0.10 * spin), 0.0, 0.78);',
+        '    float gamma = inversesqrt(max(1.0 - beta * beta, 0.05));',
+        '    float viewingCosine = dot(tangent, -diskRay);',
+        '    float dopplerFactor = 1.0 /',
+        '      max(gamma * (1.0 - beta * viewingCosine), 0.08);',
+        '    float gravitationalShift = sqrt(max(0.025, 1.0 - 2.0 / max(arealRg, 2.01)));',
+        '    float frequencyShift = clamp(dopplerFactor * gravitationalShift, 0.18, 2.5);',
+        '    float beaming = clamp(pow(frequencyShift, 3.0), 0.02, 9.0);',
+        '',
+        '    float accretionTemperature = mix(0.30, 1.18,',
+        '      pow(max(accretionLevel, 0.0001), 0.25));',
+        '    float spectralHeat = clamp((0.06 + 3.0 * temperature * accretionTemperature) *',
+        '      frequencyShift, 0.0, 1.0);',
+        '    vec3 diskColor = mix(uSeries2, uSeries1, spectralHeat);',
+        '    float luminosity = pow(accretionLevel, 0.82);',
+        '    float radiance = luminosity * (0.18 + 4.4 * temperature) * filaments * beaming;',
+        '    float mappedEmission = radiance / (0.72 + radiance);',
+        '    color = mix(uBackground, diskColor, clamp(mappedEmission, 0.0, 0.98));',
+        '  } else {',
+        '    color = starField(ray);',
+        '    float ring = 1.0 - exp(-1.35 * photonResidence);',
+        '    float ringDistance = entersLens ? clamp((minimumRadius - photonRadius) /',
+        '      max(0.07 * rg, 0.001), -12.0, 12.0) : 12.0;',
+        '    float radialRing = exp(-ringDistance * ringDistance);',
+        '    ring = max(ring, radialRing * 0.72);',
+        '    if (critical) ring = 1.0;',
+        '    float ringAccretion = pow(clamp(uAccretion, 0.0, 1.0), 0.72);',
+        '    float ringStrength = clamp(ring * (0.18 + 0.76 * ringAccretion) +',
+        '      ring * ring * 0.08, 0.0, 0.94);',
+        '    vec3 ringColor = mix(uSeries2, uSeries1, 0.78);',
+        '    color = mix(color, ringColor, ringStrength);',
+        '  }',
+        '',
+        '  float vignette = 1.0 - 0.16 * smoothstep(0.48, 1.48, length(p));',
+        '  color = mix(uBackground, color, vignette);',
+        '  gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);',
+        '}'
+      ].join(String.fromCharCode(10));
+
+      function compileShader(type, source) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          var message = gl.getShaderInfoLog(shader) || '着色器编译失败';
+          gl.deleteShader(shader);
+          throw new Error(message);
+        }
+        return shader;
+      }
+
+      function createProgram(stepCount) {
+        var vertexShader = null;
+        var fragmentShader = null;
+        var nextProgram = null;
+        try {
+          vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+          var fragmentSource = fragmentSourceTemplate.replace('__MAX_STEPS__', String(stepCount));
+          fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+          nextProgram = gl.createProgram();
+          gl.attachShader(nextProgram, vertexShader);
+          gl.attachShader(nextProgram, fragmentShader);
+          gl.linkProgram(nextProgram);
+          if (!gl.getProgramParameter(nextProgram, gl.LINK_STATUS)) {
+            throw new Error(gl.getProgramInfoLog(nextProgram) || '渲染程序链接失败');
+          }
+          return nextProgram;
+        } catch (error) {
+          if (nextProgram) gl.deleteProgram(nextProgram);
+          throw error;
+        } finally {
+          if (vertexShader) gl.deleteShader(vertexShader);
+          if (fragmentShader) gl.deleteShader(fragmentShader);
+        }
+      }
+
+      var program = null;
+      var positionBuffer = null;
+      var shaderStepCount = 96;
+      var uniforms = {};
+
+      function initializeGpuResources(stepCount) {
+        shaderStepCount = stepCount;
+        program = createProgram(shaderStepCount);
+        gl.useProgram(program);
+        positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+          -1, -1,
+           3, -1,
+          -1,  3
+        ]), gl.STATIC_DRAW);
+
+        var positionLocation = gl.getAttribLocation(program, 'aPosition');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        uniforms = {};
+        [
+          'uResolution', 'uTime', 'uMass', 'uSpin', 'uAccretion',
+          'uInclination', 'uYaw', 'uZoom', 'uIscoRg', 'uBackground',
+          'uForeground', 'uMuted', 'uSeries1', 'uSeries2', 'uVoid'
+        ].forEach(function (name) {
+          uniforms[name] = gl.getUniformLocation(program, name);
+        });
+      }
+
+      function initializeWithFallback() {
+        var attempts = [96, 64, 48];
+        var lastError = null;
+        for (var i = 0; i < attempts.length; i += 1) {
+          try {
+            initializeGpuResources(attempts[i]);
+            return;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+        throw lastError || new Error('没有可用的着色器质量档');
+      }
+
+      try {
+        initializeWithFallback();
+      } catch (error) {
+        statusEl.textContent = '渲染初始化失败';
+        readoutEl.textContent = String(error.message || error);
+        toggleButton.disabled = true;
+        return;
+      }
+
+      var colorCanvas = document.createElement('canvas');
+      colorCanvas.width = 1;
+      colorCanvas.height = 1;
+      var colorContext = colorCanvas.getContext('2d', { willReadFrequently: true });
+      var themeColors = {};
+
+      function readThemeColor(variableName) {
+        var value = getComputedStyle(root).getPropertyValue(variableName).trim();
+        colorContext.clearRect(0, 0, 1, 1);
+        colorContext.fillStyle = value || getComputedStyle(root).color;
+        colorContext.fillRect(0, 0, 1, 1);
+        var pixel = colorContext.getImageData(0, 0, 1, 1).data;
+        return [pixel[0] / 255, pixel[1] / 255, pixel[2] / 255];
+      }
+
+      function luminance(color) {
+        return color[0] * 0.2126 + color[1] * 0.7152 + color[2] * 0.0722;
+      }
+
+      function refreshThemeColors() {
+        themeColors.background = readThemeColor('--background');
+        themeColors.foreground = readThemeColor('--foreground');
+        themeColors.muted = readThemeColor('--muted-foreground');
+        themeColors.series1 = readThemeColor('--viz-series-1');
+        themeColors.series2 = readThemeColor('--viz-series-2');
+        var darker = luminance(themeColors.background) < luminance(themeColors.foreground)
+          ? themeColors.background
+          : themeColors.foreground;
+        themeColors.voidColor = darker.map(function (channel) {
+          return channel * 0.02;
+        });
+        scheduleFrame();
+      }
+
+      function setVec3(location, color) {
+        gl.uniform3f(location, color[0], color[1], color[2]);
+      }
+
+      var pixelRatioCap = 1.35;
+      var qualityScale = 1;
+      var pendingQualityScale = null;
+      var lowFpsWindows = 0;
+      var highFpsWindows = 0;
+
+      function resizeCanvas(shouldSchedule) {
+        var bounds = canvas.getBoundingClientRect();
+        var ratio = Math.min(window.devicePixelRatio || 1, pixelRatioCap) * qualityScale;
+        var width = Math.max(1, Math.round(bounds.width * ratio));
+        var height = Math.max(1, Math.round(bounds.height * ratio));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+          gl.viewport(0, 0, width, height);
+        }
+        if (shouldSchedule !== false) scheduleFrame();
+      }
+
+      function handleWindowResize() {
+        resizeCanvas(true);
+      }
+
+      if (typeof ResizeObserver === 'function') {
+        var resizeObserver = new ResizeObserver(function () {
+          resizeCanvas(true);
+        });
+        resizeObserver.observe(canvas);
+      } else {
+        window.addEventListener('resize', handleWindowResize);
+      }
+
+      var themeObserver = new MutationObserver(refreshThemeColors);
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+      });
+
+      if (typeof IntersectionObserver === 'function') {
+        var visibilityObserver = new IntersectionObserver(function (entries) {
+          state.offscreenPause = !entries[0].isIntersecting;
+          if (!state.offscreenPause) {
+            lastFrameTime = performance.now();
+            resetFpsWindow();
+            scheduleFrame();
+          }
+        }, { threshold: 0.01 });
+        visibilityObserver.observe(root);
+      }
+
+      function calculateIsco(spin) {
+        var z1 = 1 + Math.cbrt(1 - spin * spin) *
+          (Math.cbrt(1 + spin) + Math.cbrt(1 - spin));
+        var z2 = Math.sqrt(3 * spin * spin + z1 * z1);
+        return 3 + z2 - Math.sqrt((3 - z1) * (3 + z1 + 2 * z2));
+      }
+
+      function updateReadout() {
+        outputs.mass.textContent = state.mass.toFixed(1) + ' M☉';
+        outputs.spin.textContent = state.spin.toFixed(2) + ' a*';
+        outputs.accretion.textContent = Math.round(state.accretion * 100) + '%';
+        outputs.inclination.textContent = Math.round(state.inclination) + '°';
+
+        controls.mass.setAttribute('aria-valuetext', outputs.mass.textContent);
+        controls.spin.setAttribute('aria-valuetext', outputs.spin.textContent);
+        controls.accretion.setAttribute('aria-valuetext', outputs.accretion.textContent);
+        controls.inclination.setAttribute('aria-valuetext', outputs.inclination.textContent);
+
+        var gravitationalRadiusKm = 1.4766 * state.mass;
+        var horizonRg = 1 + Math.sqrt(1 - state.spin * state.spin);
+        var iscoRg = calculateIsco(state.spin);
+        var periodMs = 2 * Math.PI *
+          (Math.pow(iscoRg, 1.5) + state.spin) *
+          0.0049255 * state.mass;
+
+        readoutEl.textContent =
+          '事件视界 ' + (horizonRg * gravitationalRadiusKm).toFixed(1) + ' km' +
+          ' · ISCO ' + (iscoRg * gravitationalRadiusKm).toFixed(1) + ' km' +
+          ' · 内盘周期 ' + periodMs.toFixed(1) + ' ms';
+      }
+
+      function syncStateFromControls() {
+        state.mass = Number(controls.mass.value);
+        state.spin = Number(controls.spin.value);
+        state.accretion = Number(controls.accretion.value);
+        state.inclination = Number(controls.inclination.value);
+        updateReadout();
+        scheduleFrame();
+      }
+
+      Object.keys(controls).forEach(function (key) {
+        controls[key].addEventListener('input', syncStateFromControls);
+      });
+
+      function isActivelyAnimating() {
+        return !state.paused && !state.hiddenPause &&
+          !state.offscreenPause && !state.contextLost;
+      }
+
+      function updateStatus(fps) {
+        if (state.hiddenPause) {
+          statusEl.textContent = '后台暂停';
+        } else if (state.offscreenPause) {
+          statusEl.textContent = '画面外暂停';
+        } else if (state.contextLost) {
+          statusEl.textContent = '正在恢复渲染';
+        } else if (state.paused) {
+          statusEl.textContent = reduceMotion && !motionHasStarted
+            ? '减少动态 · 点击启动'
+            : '已暂停';
+        } else if (typeof fps === 'number') {
+          statusEl.textContent =
+            '实时 · ' + fps + ' FPS · ' + Math.round(qualityScale * 100) +
+            '% · ' + shaderStepCount + '步';
+        } else {
+          statusEl.textContent = '实时 · 计算中';
+        }
+      }
+
+      function updateToggle() {
+        toggleButton.textContent = state.paused
+          ? (reduceMotion && !motionHasStarted ? '启动运动' : '继续运动')
+          : '暂停运动';
+        toggleButton.setAttribute('aria-pressed', String(!state.paused));
+        updateStatus();
+      }
+
+      toggleButton.addEventListener('click', function () {
+        state.paused = !state.paused;
+        if (!state.paused) motionHasStarted = true;
+        updateToggle();
+        lastFrameTime = performance.now();
+        resetFpsWindow();
+        scheduleFrame();
+      });
+
+      var pointerId = null;
+      var previousPointer = { x: 0, y: 0 };
+
+      canvas.addEventListener('pointerdown', function (event) {
+        pointerId = event.pointerId;
+        previousPointer.x = event.clientX;
+        previousPointer.y = event.clientY;
+        canvas.setPointerCapture(pointerId);
+      });
+
+      canvas.addEventListener('pointermove', function (event) {
+        if (event.pointerId !== pointerId) return;
+        var dx = event.clientX - previousPointer.x;
+        var dy = event.clientY - previousPointer.y;
+        previousPointer.x = event.clientX;
+        previousPointer.y = event.clientY;
+        state.yaw -= dx * 0.008;
+        state.yaw = Math.atan2(Math.sin(state.yaw), Math.cos(state.yaw));
+        state.inclination = Math.max(5, Math.min(85, state.inclination + dy * 0.28));
+        controls.inclination.value = String(Math.round(state.inclination));
+        updateReadout();
+        scheduleFrame();
+      });
+
+      function releasePointer(event) {
+        if (event.pointerId !== pointerId) return;
+        if (canvas.hasPointerCapture(pointerId)) {
+          canvas.releasePointerCapture(pointerId);
+        }
+        pointerId = null;
+      }
+
+      canvas.addEventListener('pointerup', releasePointer);
+      canvas.addEventListener('pointercancel', releasePointer);
+
+      canvas.addEventListener('wheel', function (event) {
+        var factor = Math.exp(-event.deltaY * 0.001);
+        var nextZoom = Math.max(0.72, Math.min(1.75, state.zoom * factor));
+        if (Math.abs(nextZoom - state.zoom) > 0.0001) {
+          event.preventDefault();
+          state.zoom = nextZoom;
+          scheduleFrame();
+        }
+      }, { passive: false });
+
+      var rafId = 0;
+      var lastFrameTime = performance.now();
+      var fpsWindowStart = lastFrameTime;
+      var fpsFrames = 0;
+
+      function resetFpsWindow() {
+        fpsWindowStart = performance.now();
+        fpsFrames = 0;
+        lowFpsWindows = 0;
+        highFpsWindows = 0;
+      }
+
+      function adaptQuality(fps) {
+        if (fps < 29) {
+          lowFpsWindows += 1;
+          highFpsWindows = 0;
+        } else if (fps > 52) {
+          highFpsWindows += 1;
+          lowFpsWindows = 0;
+        } else {
+          lowFpsWindows = 0;
+          highFpsWindows = 0;
+        }
+
+        if (lowFpsWindows >= 2 && qualityScale > 0.68) {
+          pendingQualityScale = Math.max(0.68, qualityScale * 0.82);
+          lowFpsWindows = 0;
+        } else if (highFpsWindows >= 4 && qualityScale < 1) {
+          pendingQualityScale = Math.min(1, qualityScale / 0.9);
+          highFpsWindows = 0;
+        }
+      }
+
+      function draw(now) {
+        rafId = 0;
+        if (!root.isConnected) {
+          cleanup();
+          return;
+        }
+        if (pendingQualityScale !== null) {
+          qualityScale = pendingQualityScale;
+          pendingQualityScale = null;
+          resizeCanvas(false);
+        }
+        var delta = Math.min(0.5, Math.max(0, (now - lastFrameTime) / 1000));
+        lastFrameTime = now;
+        if (isActivelyAnimating()) state.time = (state.time + delta) % 4096;
+
+        gl.useProgram(program);
+        gl.uniform2f(uniforms.uResolution, canvas.width, canvas.height);
+        gl.uniform1f(uniforms.uTime, state.time);
+        gl.uniform1f(uniforms.uMass, state.mass);
+        gl.uniform1f(uniforms.uSpin, state.spin);
+        gl.uniform1f(uniforms.uAccretion, state.accretion);
+        gl.uniform1f(uniforms.uInclination, state.inclination);
+        gl.uniform1f(uniforms.uYaw, state.yaw);
+        gl.uniform1f(uniforms.uZoom, state.zoom);
+        gl.uniform1f(uniforms.uIscoRg, calculateIsco(state.spin));
+        setVec3(uniforms.uBackground, themeColors.background);
+        setVec3(uniforms.uForeground, themeColors.foreground);
+        setVec3(uniforms.uMuted, themeColors.muted);
+        setVec3(uniforms.uSeries1, themeColors.series1);
+        setVec3(uniforms.uSeries2, themeColors.series2);
+        setVec3(uniforms.uVoid, themeColors.voidColor);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+        if (isActivelyAnimating()) {
+          fpsFrames += 1;
+          if (now - fpsWindowStart >= 700) {
+            var fps = Math.round(fpsFrames * 1000 / (now - fpsWindowStart));
+            adaptQuality(fps);
+            updateStatus(fps);
+            fpsWindowStart = now;
+            fpsFrames = 0;
+          }
+          rafId = requestAnimationFrame(draw);
+        } else {
+          updateStatus();
+        }
+      }
+
+      function scheduleFrame() {
+        if (!rafId && !document.hidden && !state.offscreenPause && !state.contextLost) {
+          rafId = requestAnimationFrame(draw);
+        }
+      }
+
+      function handleVisibilityChange() {
+        state.hiddenPause = document.hidden;
+        if (!document.hidden) {
+          lastFrameTime = performance.now();
+          resetFpsWindow();
+          scheduleFrame();
+        }
+      }
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      canvas.addEventListener('webglcontextlost', function (event) {
+        event.preventDefault();
+        state.contextLost = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = 0;
+        statusEl.textContent = '渲染已暂停';
+      });
+
+      canvas.addEventListener('webglcontextrestored', function () {
+        try {
+          initializeWithFallback();
+          state.contextLost = false;
+          resizeCanvas(false);
+          gl.viewport(0, 0, canvas.width, canvas.height);
+          lastFrameTime = performance.now();
+          resetFpsWindow();
+          scheduleFrame();
+        } catch (error) {
+          statusEl.textContent = '渲染恢复失败';
+          readoutEl.textContent = String(error.message || error);
+        }
+      });
+
+      var disposed = false;
+      var connectionObserver = new MutationObserver(function () {
+        if (!root.isConnected) cleanup();
+      });
+      if (root.parentNode) {
+        connectionObserver.observe(root.parentNode, { childList: true });
+      }
+
+      function cleanup() {
+        if (disposed) return;
+        disposed = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        if (typeof resizeObserver !== 'undefined') resizeObserver.disconnect();
+        if (typeof visibilityObserver !== 'undefined') visibilityObserver.disconnect();
+        themeObserver.disconnect();
+        connectionObserver.disconnect();
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('resize', handleWindowResize);
+        if (positionBuffer && !state.contextLost) gl.deleteBuffer(positionBuffer);
+        if (program && !state.contextLost) gl.deleteProgram(program);
+      }
+
+      refreshThemeColors();
+      updateReadout();
+      updateToggle();
+      resizeCanvas(true);
+      scheduleFrame();
+    }());
+  </script>
+</div>

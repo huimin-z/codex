@@ -1,0 +1,1840 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Black Hole Accretion Motion Lab</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;max-width:736px;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Black Hole Accretion Motion Lab" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Black Hole Accretion Motion Lab&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(--background) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: light-dark(rgb(255 255 255), rgb(24 24 24));
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 12.5px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--viz-font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed=&quot;true&quot;],
+    [aria-selected=&quot;true&quot;],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;black-hole-accretion-motion-lab&quot;&gt;
+  &lt;style&gt;
+    #black-hole-accretion-motion-lab {
+      display: grid;
+      width: 100%;
+      min-width: 0;
+      gap: 12px;
+      color: var(--foreground);
+    }
+
+    #black-hole-accretion-motion-lab .bh-stage {
+      position: relative;
+      min-width: 0;
+    }
+
+    #black-hole-accretion-motion-lab .bh-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      touch-action: pan-y;
+      background: var(--background);
+    }
+
+    #black-hole-accretion-motion-lab .bh-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      pointer-events: none;
+    }
+
+    #black-hole-accretion-motion-lab .bh-readout {
+      min-height: 1.5em;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      #black-hole-accretion-motion-lab .bh-canvas {
+        aspect-ratio: 4 / 3;
+      }
+    }
+  &lt;/style&gt;
+
+  &lt;section aria-labelledby=&quot;bh-motion-heading&quot;&gt;
+    &lt;h2 id=&quot;bh-motion-heading&quot; class=&quot;sr-only&quot;&gt;相对论黑洞实时模型&lt;/h2&gt;
+
+    &lt;div class=&quot;bh-stage&quot;&gt;
+      &lt;canvas
+        id=&quot;bh-motion-canvas&quot;
+        class=&quot;bh-canvas&quot;
+        role=&quot;img&quot;
+        aria-label=&quot;相对论近似的旋转黑洞实时模拟，包含光线弯曲、光子环、引力红移和多普勒增亮&quot;
+        aria-describedby=&quot;bh-motion-description&quot;
+      &gt;浏览器需要支持 WebGL 才能显示实时黑洞模型。&lt;/canvas&gt;
+      &lt;span id=&quot;bh-motion-status&quot; class=&quot;viz-badge bh-status&quot; aria-live=&quot;off&quot;&gt;实时 · 初始化&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;bh-motion-readout&quot; class=&quot;bh-readout text-small text-muted&quot;&gt;&lt;/div&gt;
+
+    &lt;div class=&quot;viz-controls&quot; aria-label=&quot;黑洞模型参数&quot;&gt;
+      &lt;label class=&quot;form-label&quot; for=&quot;bh-motion-mass&quot;&gt;
+        质量 &lt;output id=&quot;bh-motion-mass-output&quot; for=&quot;bh-motion-mass&quot;&gt;8.0 M☉&lt;/output&gt;
+        &lt;input id=&quot;bh-motion-mass&quot; class=&quot;form-range&quot; type=&quot;range&quot; min=&quot;2&quot; max=&quot;20&quot; value=&quot;8&quot; step=&quot;0.1&quot;&gt;
+      &lt;/label&gt;
+
+      &lt;label class=&quot;form-label&quot; for=&quot;bh-motion-spin&quot;&gt;
+        自旋 &lt;output id=&quot;bh-motion-spin-output&quot; for=&quot;bh-motion-spin&quot;&gt;0.72 a*&lt;/output&gt;
+        &lt;input id=&quot;bh-motion-spin&quot; class=&quot;form-range&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;0.98&quot; value=&quot;0.72&quot; step=&quot;0.01&quot;&gt;
+      &lt;/label&gt;
+
+      &lt;label class=&quot;form-label&quot; for=&quot;bh-motion-accretion&quot;&gt;
+        吸积率 &lt;output id=&quot;bh-motion-accretion-output&quot; for=&quot;bh-motion-accretion&quot;&gt;65%&lt;/output&gt;
+        &lt;input id=&quot;bh-motion-accretion&quot; class=&quot;form-range&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;1&quot; value=&quot;0.65&quot; step=&quot;0.01&quot;&gt;
+      &lt;/label&gt;
+
+      &lt;label class=&quot;form-label&quot; for=&quot;bh-motion-inclination&quot;&gt;
+        观测倾角 &lt;output id=&quot;bh-motion-inclination-output&quot; for=&quot;bh-motion-inclination&quot;&gt;64°&lt;/output&gt;
+        &lt;input id=&quot;bh-motion-inclination&quot; class=&quot;form-range&quot; type=&quot;range&quot; min=&quot;5&quot; max=&quot;85&quot; value=&quot;64&quot; step=&quot;1&quot;&gt;
+      &lt;/label&gt;
+
+      &lt;button id=&quot;bh-motion-motion&quot; class=&quot;btn&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;暂停运动&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;p id=&quot;bh-motion-description&quot; class=&quot;sr-only&quot;&gt;
+      可使用质量、自旋、吸积率和观测倾角滑块更新模型。画面支持指针拖动观察方向与滚轮缩放。
+    &lt;/p&gt;
+  &lt;/section&gt;
+
+  &lt;script&gt;
+    (function () {
+      &#x27;use strict&#x27;;
+
+      var root = document.getElementById(&#x27;black-hole-accretion-motion-lab&#x27;);
+      if (!root || root.dataset.initialized === &#x27;true&#x27;) return;
+      root.dataset.initialized = &#x27;true&#x27;;
+
+      var canvas = document.getElementById(&#x27;bh-motion-canvas&#x27;);
+      var statusEl = document.getElementById(&#x27;bh-motion-status&#x27;);
+      var readoutEl = document.getElementById(&#x27;bh-motion-readout&#x27;);
+      var toggleButton = document.getElementById(&#x27;bh-motion-motion&#x27;);
+
+      var controls = {
+        mass: document.getElementById(&#x27;bh-motion-mass&#x27;),
+        spin: document.getElementById(&#x27;bh-motion-spin&#x27;),
+        accretion: document.getElementById(&#x27;bh-motion-accretion&#x27;),
+        inclination: document.getElementById(&#x27;bh-motion-inclination&#x27;)
+      };
+
+      var outputs = {
+        mass: document.getElementById(&#x27;bh-motion-mass-output&#x27;),
+        spin: document.getElementById(&#x27;bh-motion-spin-output&#x27;),
+        accretion: document.getElementById(&#x27;bh-motion-accretion-output&#x27;),
+        inclination: document.getElementById(&#x27;bh-motion-inclination-output&#x27;)
+      };
+
+      var reduceMotion = window.matchMedia &amp;&amp;
+        window.matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches;
+      var motionHasStarted = !reduceMotion;
+
+      var state = {
+        mass: Number(controls.mass.value),
+        spin: Number(controls.spin.value),
+        accretion: Number(controls.accretion.value),
+        inclination: Number(controls.inclination.value),
+        yaw: -0.45,
+        zoom: 1,
+        time: 0,
+        paused: Boolean(reduceMotion),
+        hiddenPause: false,
+        offscreenPause: false,
+        contextLost: false
+      };
+
+      var gl = canvas.getContext(&#x27;webgl&#x27;, {
+        antialias: false,
+        alpha: false,
+        depth: false,
+        stencil: false,
+        preserveDrawingBuffer: false,
+        powerPreference: &#x27;high-performance&#x27;
+      });
+
+      if (!gl) {
+        statusEl.textContent = &#x27;WebGL 不可用&#x27;;
+        readoutEl.textContent = &#x27;当前浏览器无法启动实时渲染。&#x27;;
+        toggleButton.disabled = true;
+        Object.keys(controls).forEach(function (key) {
+          controls[key].disabled = true;
+        });
+        return;
+      }
+
+      var vertexSource = [
+        &#x27;attribute vec2 aPosition;&#x27;,
+        &#x27;void main() {&#x27;,
+        &#x27;  gl_Position = vec4(aPosition, 0.0, 1.0);&#x27;,
+        &#x27;}&#x27;
+      ].join(String.fromCharCode(10));
+
+      var fragmentPrecision = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision &gt; 0
+        ? &#x27;precision highp float;&#x27;
+        : &#x27;precision mediump float;&#x27;;
+
+      var fragmentSourceTemplate = [
+        fragmentPrecision,
+        &#x27;uniform vec2 uResolution;&#x27;,
+        &#x27;uniform float uTime;&#x27;,
+        &#x27;uniform float uMass;&#x27;,
+        &#x27;uniform float uSpin;&#x27;,
+        &#x27;uniform float uAccretion;&#x27;,
+        &#x27;uniform float uInclination;&#x27;,
+        &#x27;uniform float uYaw;&#x27;,
+        &#x27;uniform float uZoom;&#x27;,
+        &#x27;uniform float uIscoRg;&#x27;,
+        &#x27;uniform vec3 uBackground;&#x27;,
+        &#x27;uniform vec3 uForeground;&#x27;,
+        &#x27;uniform vec3 uMuted;&#x27;,
+        &#x27;uniform vec3 uSeries1;&#x27;,
+        &#x27;uniform vec3 uSeries2;&#x27;,
+        &#x27;uniform vec3 uVoid;&#x27;,
+        &#x27;const float PI = 3.141592653589793;&#x27;,
+        &#x27;&#x27;,
+        &#x27;float hash21(vec2 p) {&#x27;,
+        &#x27;  p = fract(p * vec2(0.1031, 0.1030));&#x27;,
+        &#x27;  p += dot(p, p.yx + 33.33);&#x27;,
+        &#x27;  return fract((p.x + p.y) * p.x);&#x27;,
+        &#x27;}&#x27;,
+        &#x27;&#x27;,
+        &#x27;float valueNoise(vec2 p) {&#x27;,
+        &#x27;  vec2 i = floor(p);&#x27;,
+        &#x27;  vec2 f = fract(p);&#x27;,
+        &#x27;  f = f * f * (3.0 - 2.0 * f);&#x27;,
+        &#x27;  return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x),&#x27;,
+        &#x27;             mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), f.x), f.y);&#x27;,
+        &#x27;}&#x27;,
+        &#x27;&#x27;,
+        &#x27;vec3 starField(vec3 direction) {&#x27;,
+        &#x27;  vec3 d = normalize(direction);&#x27;,
+        &#x27;  vec2 sphere = vec2(atan(d.z, d.x) / (2.0 * PI) + 0.5,&#x27;,
+        &#x27;                     asin(clamp(d.y, -1.0, 1.0)) / PI + 0.5);&#x27;,
+        &#x27;  float cloud = valueNoise(sphere * vec2(7.0, 4.0));&#x27;,
+        &#x27;  vec3 color = mix(uBackground, uMuted, 0.035 + 0.075 * cloud);&#x27;,
+        &#x27;&#x27;,
+        &#x27;  vec2 gridA = sphere * vec2(760.0, 380.0);&#x27;,
+        &#x27;  vec2 cellA = floor(gridA);&#x27;,
+        &#x27;  float seedA = hash21(cellA);&#x27;,
+        &#x27;  float pointA = 1.0 - smoothstep(0.0, 0.075, length(fract(gridA) - 0.5));&#x27;,
+        &#x27;  pointA *= smoothstep(0.991, 1.0, seedA);&#x27;,
+        &#x27;&#x27;,
+        &#x27;  vec2 gridB = sphere * vec2(310.0, 155.0) + 17.0;&#x27;,
+        &#x27;  vec2 cellB = floor(gridB);&#x27;,
+        &#x27;  float seedB = hash21(cellB);&#x27;,
+        &#x27;  float pointB = 1.0 - smoothstep(0.0, 0.055, length(fract(gridB) - 0.5));&#x27;,
+        &#x27;  pointB *= smoothstep(0.997, 1.0, seedB);&#x27;,
+        &#x27;&#x27;,
+        &#x27;  float stars = clamp(pointA * (0.45 + 0.8 * seedA) + pointB, 0.0, 1.0);&#x27;,
+        &#x27;  return mix(color, uForeground, stars);&#x27;,
+        &#x27;}&#x27;,
+        &#x27;&#x27;,
+        &#x27;vec3 opticalCurvature(vec3 position, vec3 direction, float rg, float spin) {&#x27;,
+        &#x27;  float radius = max(length(position), 0.51 * rg);&#x27;,
+        &#x27;  float isotropicHorizon = 0.5 * rg;&#x27;,
+        &#x27;  float x = min(isotropicHorizon / radius, 0.985);&#x27;,
+        &#x27;  float dLogNdr = -(x / radius) *&#x27;,
+        &#x27;    (3.0 / max(1.0 + x, 0.02) + 1.0 / max(1.0 - x, 0.02));&#x27;,
+        &#x27;  vec3 gradient = dLogNdr * position / radius;&#x27;,
+        &#x27;  vec3 turn = gradient - direction * dot(direction, gradient);&#x27;,
+        &#x27;&#x27;,
+        &#x27;  vec3 drag = cross(vec3(0.0, 1.0, 0.0), position);&#x27;,
+        &#x27;  drag *= spin * 0.055 * rg * rg / max(radius * radius * radius, 0.001);&#x27;,
+        &#x27;  drag -= direction * dot(direction, drag);&#x27;,
+        &#x27;  return turn + drag;&#x27;,
+        &#x27;}&#x27;,
+        &#x27;&#x27;,
+        &#x27;void main() {&#x27;,
+        &#x27;  vec2 pixel = gl_FragCoord.xy;&#x27;,
+        &#x27;  vec2 p = (2.0 * pixel - uResolution) / min(uResolution.x, uResolution.y);&#x27;,
+        &#x27;  float massT = clamp((uMass - 2.0) / 18.0, 0.0, 1.0);&#x27;,
+        &#x27;  float rg = mix(0.48, 0.78, massT);&#x27;,
+        &#x27;  float spin = clamp(uSpin, 0.0, 0.98);&#x27;,
+        &#x27;  float isotropicHorizon = 0.5 * rg;&#x27;,
+        &#x27;  float captureRadius = isotropicHorizon * 1.025;&#x27;,
+        &#x27;  float photonRadius = 1.8660254 * rg;&#x27;,
+        &#x27;  float innerDisk = max(0.72 * uIscoRg * rg, captureRadius * 1.35);&#x27;,
+        &#x27;  float outerDisk = 8.0 * rg;&#x27;,
+        &#x27;  float lensRadius = outerDisk * 1.08;&#x27;,
+        &#x27;&#x27;,
+        &#x27;  float inclination = radians(uInclination);&#x27;,
+        &#x27;  vec3 camera = vec3(sin(inclination) * cos(uYaw),&#x27;,
+        &#x27;                     cos(inclination),&#x27;,
+        &#x27;                     sin(inclination) * sin(uYaw)) * 8.6;&#x27;,
+        &#x27;  vec3 forward = normalize(-camera);&#x27;,
+        &#x27;  vec3 right = normalize(cross(forward, vec3(0.0, 1.0, 0.0)));&#x27;,
+        &#x27;  vec3 up = normalize(cross(right, forward));&#x27;,
+        &#x27;  float focalScale = 0.92 / uZoom;&#x27;,
+        &#x27;  vec3 ray = normalize(forward + p.x * right * focalScale + p.y * up * focalScale);&#x27;,
+        &#x27;&#x27;,
+        &#x27;  float projected = dot(camera, ray);&#x27;,
+        &#x27;  float discriminant = projected * projected -&#x27;,
+        &#x27;    (dot(camera, camera) - lensRadius * lensRadius);&#x27;,
+        &#x27;  bool entersLens = discriminant &gt; 0.0 &amp;&amp; projected &lt; 0.0;&#x27;,
+        &#x27;  float entryDistance = entersLens ? -projected - sqrt(max(discriminant, 0.0)) : 0.0;&#x27;,
+        &#x27;  vec3 position = camera + ray * max(entryDistance, 0.0);&#x27;,
+        &#x27;  float previousPlane = position.y;&#x27;,
+        &#x27;&#x27;,
+        &#x27;  float minimumRadius = 100.0;&#x27;,
+        &#x27;  float photonResidence = 0.0;&#x27;,
+        &#x27;  bool captured = false;&#x27;,
+        &#x27;  bool diskHit = false;&#x27;,
+        &#x27;  bool escaped = !entersLens;&#x27;,
+        &#x27;  vec3 diskPoint = vec3(0.0);&#x27;,
+        &#x27;  vec3 diskRay = ray;&#x27;,
+        &#x27;&#x27;,
+        &#x27;  for (int i = 0; i &lt; __MAX_STEPS__; i++) {&#x27;,
+        &#x27;    if (!entersLens || captured || diskHit || escaped) break;&#x27;,
+        &#x27;    float radius = length(position);&#x27;,
+        &#x27;    minimumRadius = min(minimumRadius, radius);&#x27;,
+        &#x27;    if (radius &lt; captureRadius) {&#x27;,
+        &#x27;      captured = true;&#x27;,
+        &#x27;      break;&#x27;,
+        &#x27;    }&#x27;,
+        &#x27;&#x27;,
+        &#x27;    float photonDistance = (radius - photonRadius) / max(0.16 * rg, 0.001);&#x27;,
+        &#x27;    float stepSize = clamp(0.055 * radius, 0.012, 0.22 * rg);&#x27;,
+        &#x27;    photonResidence += exp(-photonDistance * photonDistance) * stepSize / rg;&#x27;,
+        &#x27;&#x27;,
+        &#x27;    vec3 firstTurn = opticalCurvature(position, ray, rg, spin);&#x27;,
+        &#x27;    vec3 midRay = normalize(ray + firstTurn * (0.5 * stepSize));&#x27;,
+        &#x27;    vec3 midPosition = position + ray * (0.5 * stepSize);&#x27;,
+        &#x27;    vec3 secondTurn = opticalCurvature(midPosition, midRay, rg, spin);&#x27;,
+        &#x27;    vec3 nextRay = normalize(ray + secondTurn * stepSize);&#x27;,
+        &#x27;    vec3 nextPosition = position + midRay * stepSize;&#x27;,
+        &#x27;&#x27;,
+        &#x27;    float nextPlane = nextPosition.y;&#x27;,
+        &#x27;    if (uAccretion &gt; 0.002 &amp;&amp; i &gt; 0 &amp;&amp; previousPlane * nextPlane &lt;= 0.0) {&#x27;,
+        &#x27;      float planeDelta = previousPlane - nextPlane;&#x27;,
+        &#x27;      float crossing = abs(planeDelta) &gt; 0.00001 ? previousPlane / planeDelta : 0.5;&#x27;,
+        &#x27;      vec3 candidate = mix(position, nextPosition, clamp(crossing, 0.0, 1.0));&#x27;,
+        &#x27;      float diskRadius = length(candidate.xz);&#x27;,
+        &#x27;      if (diskRadius &gt; innerDisk &amp;&amp; diskRadius &lt; outerDisk) {&#x27;,
+        &#x27;        diskHit = true;&#x27;,
+        &#x27;        diskPoint = candidate;&#x27;,
+        &#x27;        diskRay = normalize(mix(ray, nextRay, clamp(crossing, 0.0, 1.0)));&#x27;,
+        &#x27;        break;&#x27;,
+        &#x27;      }&#x27;,
+        &#x27;    }&#x27;,
+        &#x27;&#x27;,
+        &#x27;    position = nextPosition;&#x27;,
+        &#x27;    ray = nextRay;&#x27;,
+        &#x27;    previousPlane = nextPlane;&#x27;,
+        &#x27;    if (length(position) &gt; lensRadius &amp;&amp; dot(position, ray) &gt; 0.0 &amp;&amp; i &gt; 3) {&#x27;,
+        &#x27;      escaped = true;&#x27;,
+        &#x27;      break;&#x27;,
+        &#x27;    }&#x27;,
+        &#x27;  }&#x27;,
+        &#x27;&#x27;,
+        &#x27;  bool critical = entersLens &amp;&amp; !captured &amp;&amp; !diskHit &amp;&amp; !escaped;&#x27;,
+        &#x27;  vec3 color;&#x27;,
+        &#x27;  if (captured) {&#x27;,
+        &#x27;    color = uVoid;&#x27;,
+        &#x27;  } else if (diskHit) {&#x27;,
+        &#x27;    float radius = length(diskPoint.xz);&#x27;,
+        &#x27;    float normalizedRadius = clamp((radius - innerDisk) /&#x27;,
+        &#x27;      max(outerDisk - innerDisk, 0.001), 0.0, 1.0);&#x27;,
+        &#x27;    float arealRadius = radius * pow(1.0 + isotropicHorizon / max(radius, 0.001), 2.0);&#x27;,
+        &#x27;    float arealRg = arealRadius / rg;&#x27;,
+        &#x27;&#x27;,
+        &#x27;    float accretionLevel = clamp(uAccretion, 0.0, 1.0);&#x27;,
+        &#x27;    float temperature = pow(innerDisk / max(radius, innerDisk), 0.75) *&#x27;,
+        &#x27;      pow(max(1.0 - sqrt(innerDisk / max(radius, innerDisk)), 0.0), 0.25);&#x27;,
+        &#x27;    float azimuth = atan(diskPoint.z, diskPoint.x);&#x27;,
+        &#x27;    float orbitalRate = 2.4 * (8.0 / uMass) /&#x27;,
+        &#x27;      max(pow(arealRg, 1.5) + spin, 0.45);&#x27;,
+        &#x27;    float orbitalPhase = azimuth - uTime * orbitalRate * 2.6;&#x27;,
+        &#x27;    float turbulence = valueNoise(vec2(orbitalPhase * 3.0,&#x27;,
+        &#x27;      normalizedRadius * 18.0 + uTime * 0.10));&#x27;,
+        &#x27;    float spiralPhase = orbitalPhase * 7.0 + normalizedRadius * 82.0 +&#x27;,
+        &#x27;      (turbulence - 0.5) * 4.2;&#x27;,
+        &#x27;    float filaments = 0.70 + 0.24 * sin(spiralPhase);&#x27;,
+        &#x27;    float clumps = valueNoise(vec2(orbitalPhase * 10.0 + 6.0,&#x27;,
+        &#x27;      normalizedRadius * 31.0));&#x27;,
+        &#x27;    filaments *= 0.76 + 0.34 * turbulence + 0.18 * clumps;&#x27;,
+        &#x27;&#x27;,
+        &#x27;    vec3 tangent = normalize(vec3(diskPoint.z, 0.0, -diskPoint.x));&#x27;,
+        &#x27;    float beta = sqrt(1.0 / max(arealRg - 2.0, 0.35));&#x27;,
+        &#x27;    beta = clamp(beta * (0.90 + 0.10 * spin), 0.0, 0.78);&#x27;,
+        &#x27;    float gamma = inversesqrt(max(1.0 - beta * beta, 0.05));&#x27;,
+        &#x27;    float viewingCosine = dot(tangent, -diskRay);&#x27;,
+        &#x27;    float dopplerFactor = 1.0 /&#x27;,
+        &#x27;      max(gamma * (1.0 - beta * viewingCosine), 0.08);&#x27;,
+        &#x27;    float gravitationalShift = sqrt(max(0.025, 1.0 - 2.0 / max(arealRg, 2.01)));&#x27;,
+        &#x27;    float frequencyShift = clamp(dopplerFactor * gravitationalShift, 0.18, 2.5);&#x27;,
+        &#x27;    float beaming = clamp(pow(frequencyShift, 3.0), 0.02, 9.0);&#x27;,
+        &#x27;&#x27;,
+        &#x27;    float accretionTemperature = mix(0.30, 1.18,&#x27;,
+        &#x27;      pow(max(accretionLevel, 0.0001), 0.25));&#x27;,
+        &#x27;    float spectralHeat = clamp((0.06 + 3.0 * temperature * accretionTemperature) *&#x27;,
+        &#x27;      frequencyShift, 0.0, 1.0);&#x27;,
+        &#x27;    vec3 diskColor = mix(uSeries2, uSeries1, spectralHeat);&#x27;,
+        &#x27;    float luminosity = pow(accretionLevel, 0.82);&#x27;,
+        &#x27;    float radiance = luminosity * (0.18 + 4.4 * temperature) * filaments * beaming;&#x27;,
+        &#x27;    float mappedEmission = radiance / (0.72 + radiance);&#x27;,
+        &#x27;    color = mix(uBackground, diskColor, clamp(mappedEmission, 0.0, 0.98));&#x27;,
+        &#x27;  } else {&#x27;,
+        &#x27;    color = starField(ray);&#x27;,
+        &#x27;    float ring = 1.0 - exp(-1.35 * photonResidence);&#x27;,
+        &#x27;    float ringDistance = entersLens ? clamp((minimumRadius - photonRadius) /&#x27;,
+        &#x27;      max(0.07 * rg, 0.001), -12.0, 12.0) : 12.0;&#x27;,
+        &#x27;    float radialRing = exp(-ringDistance * ringDistance);&#x27;,
+        &#x27;    ring = max(ring, radialRing * 0.72);&#x27;,
+        &#x27;    if (critical) ring = 1.0;&#x27;,
+        &#x27;    float ringAccretion = pow(clamp(uAccretion, 0.0, 1.0), 0.72);&#x27;,
+        &#x27;    float ringStrength = clamp(ring * (0.18 + 0.76 * ringAccretion) +&#x27;,
+        &#x27;      ring * ring * 0.08, 0.0, 0.94);&#x27;,
+        &#x27;    vec3 ringColor = mix(uSeries2, uSeries1, 0.78);&#x27;,
+        &#x27;    color = mix(color, ringColor, ringStrength);&#x27;,
+        &#x27;  }&#x27;,
+        &#x27;&#x27;,
+        &#x27;  float vignette = 1.0 - 0.16 * smoothstep(0.48, 1.48, length(p));&#x27;,
+        &#x27;  color = mix(uBackground, color, vignette);&#x27;,
+        &#x27;  gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);&#x27;,
+        &#x27;}&#x27;
+      ].join(String.fromCharCode(10));
+
+      function compileShader(type, source) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          var message = gl.getShaderInfoLog(shader) || &#x27;着色器编译失败&#x27;;
+          gl.deleteShader(shader);
+          throw new Error(message);
+        }
+        return shader;
+      }
+
+      function createProgram(stepCount) {
+        var vertexShader = null;
+        var fragmentShader = null;
+        var nextProgram = null;
+        try {
+          vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+          var fragmentSource = fragmentSourceTemplate.replace(&#x27;__MAX_STEPS__&#x27;, String(stepCount));
+          fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+          nextProgram = gl.createProgram();
+          gl.attachShader(nextProgram, vertexShader);
+          gl.attachShader(nextProgram, fragmentShader);
+          gl.linkProgram(nextProgram);
+          if (!gl.getProgramParameter(nextProgram, gl.LINK_STATUS)) {
+            throw new Error(gl.getProgramInfoLog(nextProgram) || &#x27;渲染程序链接失败&#x27;);
+          }
+          return nextProgram;
+        } catch (error) {
+          if (nextProgram) gl.deleteProgram(nextProgram);
+          throw error;
+        } finally {
+          if (vertexShader) gl.deleteShader(vertexShader);
+          if (fragmentShader) gl.deleteShader(fragmentShader);
+        }
+      }
+
+      var program = null;
+      var positionBuffer = null;
+      var shaderStepCount = 96;
+      var uniforms = {};
+
+      function initializeGpuResources(stepCount) {
+        shaderStepCount = stepCount;
+        program = createProgram(shaderStepCount);
+        gl.useProgram(program);
+        positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+          -1, -1,
+           3, -1,
+          -1,  3
+        ]), gl.STATIC_DRAW);
+
+        var positionLocation = gl.getAttribLocation(program, &#x27;aPosition&#x27;);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        uniforms = {};
+        [
+          &#x27;uResolution&#x27;, &#x27;uTime&#x27;, &#x27;uMass&#x27;, &#x27;uSpin&#x27;, &#x27;uAccretion&#x27;,
+          &#x27;uInclination&#x27;, &#x27;uYaw&#x27;, &#x27;uZoom&#x27;, &#x27;uIscoRg&#x27;, &#x27;uBackground&#x27;,
+          &#x27;uForeground&#x27;, &#x27;uMuted&#x27;, &#x27;uSeries1&#x27;, &#x27;uSeries2&#x27;, &#x27;uVoid&#x27;
+        ].forEach(function (name) {
+          uniforms[name] = gl.getUniformLocation(program, name);
+        });
+      }
+
+      function initializeWithFallback() {
+        var attempts = [96, 64, 48];
+        var lastError = null;
+        for (var i = 0; i &lt; attempts.length; i += 1) {
+          try {
+            initializeGpuResources(attempts[i]);
+            return;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+        throw lastError || new Error(&#x27;没有可用的着色器质量档&#x27;);
+      }
+
+      try {
+        initializeWithFallback();
+      } catch (error) {
+        statusEl.textContent = &#x27;渲染初始化失败&#x27;;
+        readoutEl.textContent = String(error.message || error);
+        toggleButton.disabled = true;
+        return;
+      }
+
+      var colorCanvas = document.createElement(&#x27;canvas&#x27;);
+      colorCanvas.width = 1;
+      colorCanvas.height = 1;
+      var colorContext = colorCanvas.getContext(&#x27;2d&#x27;, { willReadFrequently: true });
+      var themeColors = {};
+
+      function readThemeColor(variableName) {
+        var value = getComputedStyle(root).getPropertyValue(variableName).trim();
+        colorContext.clearRect(0, 0, 1, 1);
+        colorContext.fillStyle = value || getComputedStyle(root).color;
+        colorContext.fillRect(0, 0, 1, 1);
+        var pixel = colorContext.getImageData(0, 0, 1, 1).data;
+        return [pixel[0] / 255, pixel[1] / 255, pixel[2] / 255];
+      }
+
+      function luminance(color) {
+        return color[0] * 0.2126 + color[1] * 0.7152 + color[2] * 0.0722;
+      }
+
+      function refreshThemeColors() {
+        themeColors.background = readThemeColor(&#x27;--background&#x27;);
+        themeColors.foreground = readThemeColor(&#x27;--foreground&#x27;);
+        themeColors.muted = readThemeColor(&#x27;--muted-foreground&#x27;);
+        themeColors.series1 = readThemeColor(&#x27;--viz-series-1&#x27;);
+        themeColors.series2 = readThemeColor(&#x27;--viz-series-2&#x27;);
+        var darker = luminance(themeColors.background) &lt; luminance(themeColors.foreground)
+          ? themeColors.background
+          : themeColors.foreground;
+        themeColors.voidColor = darker.map(function (channel) {
+          return channel * 0.02;
+        });
+        scheduleFrame();
+      }
+
+      function setVec3(location, color) {
+        gl.uniform3f(location, color[0], color[1], color[2]);
+      }
+
+      var pixelRatioCap = 1.35;
+      var qualityScale = 1;
+      var pendingQualityScale = null;
+      var lowFpsWindows = 0;
+      var highFpsWindows = 0;
+
+      function resizeCanvas(shouldSchedule) {
+        var bounds = canvas.getBoundingClientRect();
+        var ratio = Math.min(window.devicePixelRatio || 1, pixelRatioCap) * qualityScale;
+        var width = Math.max(1, Math.round(bounds.width * ratio));
+        var height = Math.max(1, Math.round(bounds.height * ratio));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+          gl.viewport(0, 0, width, height);
+        }
+        if (shouldSchedule !== false) scheduleFrame();
+      }
+
+      function handleWindowResize() {
+        resizeCanvas(true);
+      }
+
+      if (typeof ResizeObserver === &#x27;function&#x27;) {
+        var resizeObserver = new ResizeObserver(function () {
+          resizeCanvas(true);
+        });
+        resizeObserver.observe(canvas);
+      } else {
+        window.addEventListener(&#x27;resize&#x27;, handleWindowResize);
+      }
+
+      var themeObserver = new MutationObserver(refreshThemeColors);
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: [&#x27;class&#x27;, &#x27;style&#x27;, &#x27;data-theme&#x27;]
+      });
+
+      if (typeof IntersectionObserver === &#x27;function&#x27;) {
+        var visibilityObserver = new IntersectionObserver(function (entries) {
+          state.offscreenPause = !entries[0].isIntersecting;
+          if (!state.offscreenPause) {
+            lastFrameTime = performance.now();
+            resetFpsWindow();
+            scheduleFrame();
+          }
+        }, { threshold: 0.01 });
+        visibilityObserver.observe(root);
+      }
+
+      function calculateIsco(spin) {
+        var z1 = 1 + Math.cbrt(1 - spin * spin) *
+          (Math.cbrt(1 + spin) + Math.cbrt(1 - spin));
+        var z2 = Math.sqrt(3 * spin * spin + z1 * z1);
+        return 3 + z2 - Math.sqrt((3 - z1) * (3 + z1 + 2 * z2));
+      }
+
+      function updateReadout() {
+        outputs.mass.textContent = state.mass.toFixed(1) + &#x27; M☉&#x27;;
+        outputs.spin.textContent = state.spin.toFixed(2) + &#x27; a*&#x27;;
+        outputs.accretion.textContent = Math.round(state.accretion * 100) + &#x27;%&#x27;;
+        outputs.inclination.textContent = Math.round(state.inclination) + &#x27;°&#x27;;
+
+        controls.mass.setAttribute(&#x27;aria-valuetext&#x27;, outputs.mass.textContent);
+        controls.spin.setAttribute(&#x27;aria-valuetext&#x27;, outputs.spin.textContent);
+        controls.accretion.setAttribute(&#x27;aria-valuetext&#x27;, outputs.accretion.textContent);
+        controls.inclination.setAttribute(&#x27;aria-valuetext&#x27;, outputs.inclination.textContent);
+
+        var gravitationalRadiusKm = 1.4766 * state.mass;
+        var horizonRg = 1 + Math.sqrt(1 - state.spin * state.spin);
+        var iscoRg = calculateIsco(state.spin);
+        var periodMs = 2 * Math.PI *
+          (Math.pow(iscoRg, 1.5) + state.spin) *
+          0.0049255 * state.mass;
+
+        readoutEl.textContent =
+          &#x27;事件视界 &#x27; + (horizonRg * gravitationalRadiusKm).toFixed(1) + &#x27; km&#x27; +
+          &#x27; · ISCO &#x27; + (iscoRg * gravitationalRadiusKm).toFixed(1) + &#x27; km&#x27; +
+          &#x27; · 内盘周期 &#x27; + periodMs.toFixed(1) + &#x27; ms&#x27;;
+      }
+
+      function syncStateFromControls() {
+        state.mass = Number(controls.mass.value);
+        state.spin = Number(controls.spin.value);
+        state.accretion = Number(controls.accretion.value);
+        state.inclination = Number(controls.inclination.value);
+        updateReadout();
+        scheduleFrame();
+      }
+
+      Object.keys(controls).forEach(function (key) {
+        controls[key].addEventListener(&#x27;input&#x27;, syncStateFromControls);
+      });
+
+      function isActivelyAnimating() {
+        return !state.paused &amp;&amp; !state.hiddenPause &amp;&amp;
+          !state.offscreenPause &amp;&amp; !state.contextLost;
+      }
+
+      function updateStatus(fps) {
+        if (state.hiddenPause) {
+          statusEl.textContent = &#x27;后台暂停&#x27;;
+        } else if (state.offscreenPause) {
+          statusEl.textContent = &#x27;画面外暂停&#x27;;
+        } else if (state.contextLost) {
+          statusEl.textContent = &#x27;正在恢复渲染&#x27;;
+        } else if (state.paused) {
+          statusEl.textContent = reduceMotion &amp;&amp; !motionHasStarted
+            ? &#x27;减少动态 · 点击启动&#x27;
+            : &#x27;已暂停&#x27;;
+        } else if (typeof fps === &#x27;number&#x27;) {
+          statusEl.textContent =
+            &#x27;实时 · &#x27; + fps + &#x27; FPS · &#x27; + Math.round(qualityScale * 100) +
+            &#x27;% · &#x27; + shaderStepCount + &#x27;步&#x27;;
+        } else {
+          statusEl.textContent = &#x27;实时 · 计算中&#x27;;
+        }
+      }
+
+      function updateToggle() {
+        toggleButton.textContent = state.paused
+          ? (reduceMotion &amp;&amp; !motionHasStarted ? &#x27;启动运动&#x27; : &#x27;继续运动&#x27;)
+          : &#x27;暂停运动&#x27;;
+        toggleButton.setAttribute(&#x27;aria-pressed&#x27;, String(!state.paused));
+        updateStatus();
+      }
+
+      toggleButton.addEventListener(&#x27;click&#x27;, function () {
+        state.paused = !state.paused;
+        if (!state.paused) motionHasStarted = true;
+        updateToggle();
+        lastFrameTime = performance.now();
+        resetFpsWindow();
+        scheduleFrame();
+      });
+
+      var pointerId = null;
+      var previousPointer = { x: 0, y: 0 };
+
+      canvas.addEventListener(&#x27;pointerdown&#x27;, function (event) {
+        pointerId = event.pointerId;
+        previousPointer.x = event.clientX;
+        previousPointer.y = event.clientY;
+        canvas.setPointerCapture(pointerId);
+      });
+
+      canvas.addEventListener(&#x27;pointermove&#x27;, function (event) {
+        if (event.pointerId !== pointerId) return;
+        var dx = event.clientX - previousPointer.x;
+        var dy = event.clientY - previousPointer.y;
+        previousPointer.x = event.clientX;
+        previousPointer.y = event.clientY;
+        state.yaw -= dx * 0.008;
+        state.yaw = Math.atan2(Math.sin(state.yaw), Math.cos(state.yaw));
+        state.inclination = Math.max(5, Math.min(85, state.inclination + dy * 0.28));
+        controls.inclination.value = String(Math.round(state.inclination));
+        updateReadout();
+        scheduleFrame();
+      });
+
+      function releasePointer(event) {
+        if (event.pointerId !== pointerId) return;
+        if (canvas.hasPointerCapture(pointerId)) {
+          canvas.releasePointerCapture(pointerId);
+        }
+        pointerId = null;
+      }
+
+      canvas.addEventListener(&#x27;pointerup&#x27;, releasePointer);
+      canvas.addEventListener(&#x27;pointercancel&#x27;, releasePointer);
+
+      canvas.addEventListener(&#x27;wheel&#x27;, function (event) {
+        var factor = Math.exp(-event.deltaY * 0.001);
+        var nextZoom = Math.max(0.72, Math.min(1.75, state.zoom * factor));
+        if (Math.abs(nextZoom - state.zoom) &gt; 0.0001) {
+          event.preventDefault();
+          state.zoom = nextZoom;
+          scheduleFrame();
+        }
+      }, { passive: false });
+
+      var rafId = 0;
+      var lastFrameTime = performance.now();
+      var fpsWindowStart = lastFrameTime;
+      var fpsFrames = 0;
+
+      function resetFpsWindow() {
+        fpsWindowStart = performance.now();
+        fpsFrames = 0;
+        lowFpsWindows = 0;
+        highFpsWindows = 0;
+      }
+
+      function adaptQuality(fps) {
+        if (fps &lt; 29) {
+          lowFpsWindows += 1;
+          highFpsWindows = 0;
+        } else if (fps &gt; 52) {
+          highFpsWindows += 1;
+          lowFpsWindows = 0;
+        } else {
+          lowFpsWindows = 0;
+          highFpsWindows = 0;
+        }
+
+        if (lowFpsWindows &gt;= 2 &amp;&amp; qualityScale &gt; 0.68) {
+          pendingQualityScale = Math.max(0.68, qualityScale * 0.82);
+          lowFpsWindows = 0;
+        } else if (highFpsWindows &gt;= 4 &amp;&amp; qualityScale &lt; 1) {
+          pendingQualityScale = Math.min(1, qualityScale / 0.9);
+          highFpsWindows = 0;
+        }
+      }
+
+      function draw(now) {
+        rafId = 0;
+        if (!root.isConnected) {
+          cleanup();
+          return;
+        }
+        if (pendingQualityScale !== null) {
+          qualityScale = pendingQualityScale;
+          pendingQualityScale = null;
+          resizeCanvas(false);
+        }
+        var delta = Math.min(0.5, Math.max(0, (now - lastFrameTime) / 1000));
+        lastFrameTime = now;
+        if (isActivelyAnimating()) state.time = (state.time + delta) % 4096;
+
+        gl.useProgram(program);
+        gl.uniform2f(uniforms.uResolution, canvas.width, canvas.height);
+        gl.uniform1f(uniforms.uTime, state.time);
+        gl.uniform1f(uniforms.uMass, state.mass);
+        gl.uniform1f(uniforms.uSpin, state.spin);
+        gl.uniform1f(uniforms.uAccretion, state.accretion);
+        gl.uniform1f(uniforms.uInclination, state.inclination);
+        gl.uniform1f(uniforms.uYaw, state.yaw);
+        gl.uniform1f(uniforms.uZoom, state.zoom);
+        gl.uniform1f(uniforms.uIscoRg, calculateIsco(state.spin));
+        setVec3(uniforms.uBackground, themeColors.background);
+        setVec3(uniforms.uForeground, themeColors.foreground);
+        setVec3(uniforms.uMuted, themeColors.muted);
+        setVec3(uniforms.uSeries1, themeColors.series1);
+        setVec3(uniforms.uSeries2, themeColors.series2);
+        setVec3(uniforms.uVoid, themeColors.voidColor);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+        if (isActivelyAnimating()) {
+          fpsFrames += 1;
+          if (now - fpsWindowStart &gt;= 700) {
+            var fps = Math.round(fpsFrames * 1000 / (now - fpsWindowStart));
+            adaptQuality(fps);
+            updateStatus(fps);
+            fpsWindowStart = now;
+            fpsFrames = 0;
+          }
+          rafId = requestAnimationFrame(draw);
+        } else {
+          updateStatus();
+        }
+      }
+
+      function scheduleFrame() {
+        if (!rafId &amp;&amp; !document.hidden &amp;&amp; !state.offscreenPause &amp;&amp; !state.contextLost) {
+          rafId = requestAnimationFrame(draw);
+        }
+      }
+
+      function handleVisibilityChange() {
+        state.hiddenPause = document.hidden;
+        if (!document.hidden) {
+          lastFrameTime = performance.now();
+          resetFpsWindow();
+          scheduleFrame();
+        }
+      }
+
+      document.addEventListener(&#x27;visibilitychange&#x27;, handleVisibilityChange);
+
+      canvas.addEventListener(&#x27;webglcontextlost&#x27;, function (event) {
+        event.preventDefault();
+        state.contextLost = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = 0;
+        statusEl.textContent = &#x27;渲染已暂停&#x27;;
+      });
+
+      canvas.addEventListener(&#x27;webglcontextrestored&#x27;, function () {
+        try {
+          initializeWithFallback();
+          state.contextLost = false;
+          resizeCanvas(false);
+          gl.viewport(0, 0, canvas.width, canvas.height);
+          lastFrameTime = performance.now();
+          resetFpsWindow();
+          scheduleFrame();
+        } catch (error) {
+          statusEl.textContent = &#x27;渲染恢复失败&#x27;;
+          readoutEl.textContent = String(error.message || error);
+        }
+      });
+
+      var disposed = false;
+      var connectionObserver = new MutationObserver(function () {
+        if (!root.isConnected) cleanup();
+      });
+      if (root.parentNode) {
+        connectionObserver.observe(root.parentNode, { childList: true });
+      }
+
+      function cleanup() {
+        if (disposed) return;
+        disposed = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        if (typeof resizeObserver !== &#x27;undefined&#x27;) resizeObserver.disconnect();
+        if (typeof visibilityObserver !== &#x27;undefined&#x27;) visibilityObserver.disconnect();
+        themeObserver.disconnect();
+        connectionObserver.disconnect();
+        document.removeEventListener(&#x27;visibilitychange&#x27;, handleVisibilityChange);
+        window.removeEventListener(&#x27;resize&#x27;, handleWindowResize);
+        if (positionBuffer &amp;&amp; !state.contextLost) gl.deleteBuffer(positionBuffer);
+        if (program &amp;&amp; !state.contextLost) gl.deleteProgram(program);
+      }
+
+      refreshThemeColors();
+      updateReadout();
+      updateToggle();
+      resizeCanvas(true);
+      scheduleFrame();
+    }());
+  &lt;/script&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>
